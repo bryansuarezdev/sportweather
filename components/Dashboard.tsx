@@ -64,9 +64,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     }
 
     const geoOptions = {
-      enableHighAccuracy: false, // Menos exigente para que sea más rápido
-      timeout: 8000,
-      maximumAge: 30000 // Aceptar ubicaciones de hasta 30 segundos de antigüedad
+      enableHighAccuracy: true, // Intentar mayor precisión
+      timeout: 20000,           // Aumentar a 20 segundos
+      maximumAge: 5000         // Solo aceptar ubicaciones muy recientes
     };
 
     navigator.geolocation.getCurrentPosition(
