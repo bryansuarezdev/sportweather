@@ -553,22 +553,58 @@ export const updateProfile = async (
 
 /**
  * Envía un email para recuperar la contraseña
+ * Verifica que el email exista antes de enviar el correo
  */
-export const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+export const resetPassword = async (email: string): Promise<{ success: boolean; error?: string; notRegistered?: boolean }> => {
     try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/reset-password`
-        });
-
-        if (error) {
-            console.error('Error en resetPassword:', error);
+        // 1. Validar formato del email
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.valid) {
             return {
                 success: false,
-                error: error.message
+                error: emailValidation.error
             };
         }
 
-        console.log('✅ Email de recuperación enviado');
+        // 2. Verificar si el email existe en la base de datos
+        const { data: existingProfile, error: checkError } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('email', email.toLowerCase())
+            .maybeSingle();
+
+        if (checkError && checkError.code !== 'PGRST116') {
+            console.error('Error verificando email:', checkError);
+            return {
+                success: false,
+                error: 'Error al verificar el email. Por favor intenta de nuevo.'
+            };
+        }
+
+        // 3. Si el email NO existe, informar al usuario
+        if (!existingProfile) {
+            console.warn('⚠️ Intento de recuperación para email no registrado:', email);
+            return {
+                success: false,
+                error: 'Este correo no está registrado. ¿Quieres crear una cuenta?',
+                notRegistered: true
+            };
+        }
+
+        // 4. Si existe, enviar el correo de recuperación
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/#type=recovery`
+        });
+
+        if (error) {
+            console.error('Error en resetPasswordForEmail:', error);
+            return {
+                success: false,
+                error: 'Error al enviar el correo de recuperación. Por favor intenta de nuevo.'
+            };
+        }
+
+        console.log('✅ Email de recuperación enviado a:', email);
 
         return { success: true };
 
@@ -576,7 +612,7 @@ export const resetPassword = async (email: string): Promise<{ success: boolean; 
         console.error('Error inesperado en resetPassword:', error);
         return {
             success: false,
-            error: 'Error al enviar email de recuperación'
+            error: 'Error al procesar la solicitud. Por favor intenta de nuevo.'
         };
     }
 };

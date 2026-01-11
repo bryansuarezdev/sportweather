@@ -261,6 +261,11 @@ Por favor, revisa tu bandeja de entrada (${formData.email}) y haz click en el en
               if (result.success) {
                 setPasswordRecoveryEmail(formData.email);
                 setErrors({});
+              } else if (result.notRegistered) {
+                // Email no registrado - ofrecer crear cuenta
+                setErrors({
+                  login: 'USER_NOT_FOUND'
+                });
               } else {
                 setErrors({ login: result.error || 'Error al enviar email de recuperación' });
               }
