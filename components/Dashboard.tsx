@@ -52,10 +52,30 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   }, [user.id, user.email]);
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => initWeather(pos.coords.latitude, pos.coords.longitude, undefined, true),
-      () => initWeather(40.4168, -3.7038, 'Madrid (Default)', false)
-    );
+    const geoOptions = {
+      enableHighAccuracy: true,
+      timeout: 10000, // 10 segundos para dar tiempo al usuario a aceptar
+      maximumAge: 0
+    };
+
+    const handleSuccess = (pos: GeolocationPosition) => {
+      console.log('✅ Ubicación obtenida con éxito');
+      initWeather(pos.coords.latitude, pos.coords.longitude, undefined, true);
+    };
+
+    const handleError = (error: GeolocationPositionError) => {
+      console.warn('❌ Error o denegación de GPS:', error.message);
+      // Fallback a Madrid solo si no hay otra opción
+      initWeather(40.4168, -3.7038, 'Madrid (Ubicación por defecto)', false);
+    };
+
+    // Solicitar ubicación
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(handleSuccess, handleError, geoOptions);
+    } else {
+      console.error("Geolocalización no soportada");
+      initWeather(40.4168, -3.7038, 'Madrid (Ubicación por defecto)', false);
+    }
   }, [initWeather]);
 
   const handleSearch = async (e: React.FormEvent) => {
