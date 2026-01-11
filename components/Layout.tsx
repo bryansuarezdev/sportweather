@@ -52,7 +52,7 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout, onViewSupport
             <div className="flex space-x-4">
               {/* GitHub */}
               <a
-                href="https://github.com/bryansuarezdev"
+                href="https://github.com/bryansuarezdev/sportweather"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-teal-500/10 hover:text-teal-400 transition-all cursor-pointer"
