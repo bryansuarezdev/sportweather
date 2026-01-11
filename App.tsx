@@ -19,7 +19,8 @@ const App: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       // 1. Manejar redirecciones de enlaces antiguos (Compatibilidad)
-      if (window.location.hash.includes('type=recovery')) {
+      // Solo redirigir si estamos en la raíz "/" para evitar bucle infinito
+      if (window.location.pathname === '/' && window.location.hash.includes('type=recovery')) {
         window.location.href = `${window.location.origin}/reset-password${window.location.hash}`;
         return;
       }
