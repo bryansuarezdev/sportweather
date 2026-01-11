@@ -178,14 +178,14 @@ VITE_EMAILJS_PUBLIC_KEY=tu_public_key
    - ✅ Confirm email (recomendado para producción)
 3. Ve a **Authentication** → **URL Configuration**
 4. Configura:
-   - **Site URL:** `http://localhost:5173` o `http://localhost:3000` (desarrollo)
-   - **Redirect URLs:**
-     ```
-     http://localhost:5173
-     http://localhost:5173/*
-     http://localhost:3000
-     http://localhost:3000/*
-     ```
+    - **Site URL:** `https://sportweather.vercel.app` (producción)
+    - **Redirect URLs:**
+      ```
+      http://localhost:5173/**
+      http://localhost:3000/**
+      https://sportweather.vercel.app/**
+      ```
+      *(Nota: Los asteriscos /** permiten redirecciones a cualquier subpágina interna)*
 
 #### **2.5. Configurar Email Templates**
 
@@ -205,17 +205,17 @@ Ve a **Authentication** → **Email Templates** y configura los templates usando
 
 ### **4. Configuración de Seguridad (CORS)**
 
-**⚠️ IMPORTANTE - Configurar antes de producción:**
+**Nota sobre CORS:** En las versiones más recientes de Supabase (2025/2026), el CORS para la API REST se gestiona de forma automática para dominios seguros (HTTPS) como Vercel.
 
-1. Ve a Supabase → **Settings** → **API**
-2. Scroll hasta **"Additional Settings"**
-3. En **"Allowed Origins"**, agrega:
+Si necesitas configurar orígenes específicos manualmente o para Edge Functions:
+1. Ve a Supabase → **Settings** → **API**.
+2. Busca la sección **"CORS"** o **"Allowed Origins"** (si está disponible en tu plan/versión).
+3. Agrega tus URLs:
    ```
+   https://sportweather.vercel.app
    http://localhost:5173
    http://localhost:3000
    ```
-4. **Elimina** el wildcard `*` si está presente
-5. Click en **"Save"**
 
 📚 **Documentación completa:** `docs/CORS_CONFIGURATION.md`
 
