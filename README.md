@@ -189,7 +189,7 @@ VITE_EMAILJS_PUBLIC_KEY=tu_public_key
 
 #### **2.5. Configurar Email Templates**
 
-Ve a **Authentication** → **Email Templates** y configura los templates usando `SUPABASE_EMAIL_TEMPLATES.md` como referencia.
+Ve a **Authentication** → **Email Templates** y configura los templates usando el archivo en `docs/EMAIL_TEMPLATES.md` como referencia. Asegúrate de usar la variable `{{ .ConfirmationURL }}` para los enlaces de recuperación.
 
 ---
 
@@ -256,9 +256,10 @@ sportweather/
 ├── docs/                        # Documentación
 │   ├── CSP_SECURITY.md          # Content Security Policy
 │   ├── CORS_CONFIGURATION.md    # Configuración CORS
-│   └── SECURITY_SUMMARY.md      # Resumen de seguridad
+│   ├── SECURITY_SUMMARY.md      # Resumen de seguridad
+│   └── EMAIL_TEMPLATES.md       # Sugerencias de templates (antes SUPABASE_EMAIL_TEMPLATES.md)
 ├── supabase_auth_migration.sql  # Migración principal
-├── SUPABASE_EMAIL_TEMPLATES.md  # Templates de email
+├── vercel.json                  # Configuración de rutas para Vercel (OBLIGATORIO)
 ├── .env.local                   # Variables de entorno (no commitear)
 ├── .env.example                 # Ejemplo de variables
 ├── package.json                 # Dependencias
