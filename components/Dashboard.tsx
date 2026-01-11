@@ -51,32 +51,46 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     }
   }, [user.id, user.email]);
 
-  useEffect(() => {
-    const geoOptions = {
-      enableHighAccuracy: true,
-      timeout: 10000, // 10 segundos para dar tiempo al usuario a aceptar
-      maximumAge: 0
-    };
+  const [geoError, setGeoError] = useState<string | null>(null);
 
-    const handleSuccess = (pos: GeolocationPosition) => {
-      console.log('✅ Ubicación obtenida con éxito');
-      initWeather(pos.coords.latitude, pos.coords.longitude, undefined, true);
-    };
+  const requestLocation = useCallback(() => {
+    setLoading(true);
+    setGeoError(null);
 
-    const handleError = (error: GeolocationPositionError) => {
-      console.warn('❌ Error o denegación de GPS:', error.message);
-      // Fallback a Madrid solo si no hay otra opción
-      initWeather(40.4168, -3.7038, 'Madrid (Ubicación por defecto)', false);
-    };
-
-    // Solicitar ubicación
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(handleSuccess, handleError, geoOptions);
-    } else {
-      console.error("Geolocalización no soportada");
-      initWeather(40.4168, -3.7038, 'Madrid (Ubicación por defecto)', false);
+    if (!("geolocation" in navigator)) {
+      setGeoError("Tu navegador no soporta geolocalización.");
+      initWeather(40.4168, -3.7038, 'Madrid (Manual)', false);
+      return;
     }
+
+    const geoOptions = {
+      enableHighAccuracy: false, // Menos exigente para que sea más rápido
+      timeout: 8000,
+      maximumAge: 30000 // Aceptar ubicaciones de hasta 30 segundos de antigüedad
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        console.log('✅ Ubicación obtenida');
+        initWeather(pos.coords.latitude, pos.coords.longitude, undefined, true);
+      },
+      (err) => {
+        console.warn('❌ Error GPS:', err.code, err.message);
+        let msg = "No pudimos obtener tu ubicación.";
+        if (err.code === 1) msg = "Has denegado el permiso de ubicación. Por favor, actívalo en tu navegador.";
+        if (err.code === 3) msg = "La solicitud de ubicación tardó demasiado.";
+
+        setGeoError(msg);
+        initWeather(40.4168, -3.7038, 'Madrid (Fallback)', false);
+      },
+      geoOptions
+    );
   }, [initWeather]);
+
+  useEffect(() => {
+    // Intentar obtener automáticamente al inicio, pero sin ser intrusivos
+    requestLocation();
+  }, [requestLocation]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,30 +164,56 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
-      {/* Buscador Superior */}
-      <div className="relative">
-        <form onSubmit={handleSearch} className="relative group">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar otra ciudad..."
-            className="w-full bg-slate-900 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all placeholder:text-slate-600"
-          />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-teal-400 transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          </div>
-        </form>
+      {/* Barra de Búsqueda y Ubicación */}
+      <div className="space-y-4 mb-8">
+        <div className="flex flex-col md:flex-row gap-3">
+          <form onSubmit={handleSearch} className="flex-1 relative group">
+            <input
+              type="text"
+              placeholder="Buscar ciudad (ej: Barcelona, Londres...)"
+              className="w-full bg-slate-900/50 border border-slate-800 text-white rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all placeholder:text-slate-600"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-teal-400 p-2 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </button>
+          </form>
 
+          <button
+            onClick={requestLocation}
+            className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-6 py-4 rounded-2xl transition-all border border-slate-700 hover:border-teal-500/50"
+            title="Usar mi ubicación actual"
+          >
+            <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            <span className="font-bold text-sm uppercase tracking-wider">Mi Ubicación</span>
+          </button>
+        </div>
+
+        {geoError && (
+          <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 flex items-start gap-3">
+            <svg className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <p className="text-orange-200 text-sm font-medium">{geoError}</p>
+          </div>
+        )}
+
+        {/* Resultados de búsqueda */}
         {searchResults.length > 0 && (
-          <div className="absolute top-full mt-2 w-full bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
             {searchResults.map((res, i) => (
               <button
                 key={i}
                 onClick={() => selectLocation(res)}
-                className="w-full px-4 py-3 text-left hover:bg-slate-800 text-slate-300 hover:text-white flex justify-between items-center transition-colors"
+                className="w-full text-left px-6 py-4 hover:bg-slate-800 border-b border-slate-800 last:border-0 transition-colors flex items-center gap-3 group"
               >
-                <span>{res.name} <span className="text-slate-500 text-sm ml-2">{res.country}</span></span>
+                <span className="text-slate-500 group-hover:text-teal-400 transition-colors text-xl">📍</span>
+                <div>
+                  <div className="text-white font-bold">{res.name}</div>
+                  <div className="text-slate-500 text-xs uppercase tracking-widest">{res.lat.toFixed(2)}, {res.lon.toFixed(2)}</div>
+                </div>
               </button>
             ))}
           </div>
