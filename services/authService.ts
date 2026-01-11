@@ -593,7 +593,7 @@ export const resetPassword = async (email: string): Promise<{ success: boolean; 
 
         // 4. Si existe, enviar el correo de recuperación
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/#type=recovery`
+            redirectTo: `${window.location.origin}/reset-password`
         });
 
         if (error) {

@@ -18,6 +18,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const init = async () => {
+      // 1. Manejar redirecciones de enlaces antiguos (Compatibilidad)
+      if (window.location.hash.includes('type=recovery')) {
+        window.location.href = `${window.location.origin}/reset-password${window.location.hash}`;
+        return;
+      }
+
+      // 2. Cargar usuario si no estamos en una redirección
       const savedUser = await getCurrentUserProfile();
       if (savedUser) setUser(savedUser);
       setLoading(false);
