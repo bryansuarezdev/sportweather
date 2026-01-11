@@ -16,15 +16,26 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onSuccess }) => {
     const [countdown, setCountdown] = useState(10);
 
     useEffect(() => {
-        // Verificar si hay un token de recuperación en la URL
+        // Verificar si hay un token de recuperación o una sesión activa de recuperación
         const checkRecoveryToken = async () => {
+            // 1. Revisar el hash (por si acaso aún está ahí)
             const hashParams = new URLSearchParams(window.location.hash.substring(1));
             const type = hashParams.get('type');
 
             if (type === 'recovery') {
                 setIsValidToken(true);
+                return;
+            }
+
+            // 2. Si el hash ya no está, preguntar a Supabase si tenemos sesión activa
+            const { data: { session } } = await supabase.auth.getSession();
+
+            // Si hay sesión, es que Supabase ya procesó el link correctamente
+            if (session) {
+                console.log('🔐 Sesión de recuperación detectada');
+                setIsValidToken(true);
             } else {
-                setError('Link de recuperación inválido o expirado');
+                setError('Link de recuperación inválido o expirado. Por favor, solicita uno nuevo.');
             }
         };
 
