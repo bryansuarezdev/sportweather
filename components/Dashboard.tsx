@@ -63,10 +63,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       return;
     }
 
+    // Estrategia: Priorizar velocidad sobre precisión
     const geoOptions = {
-      enableHighAccuracy: true, // Intentar mayor precisión
-      timeout: 20000,           // Aumentar a 20 segundos
-      maximumAge: 5000         // Solo aceptar ubicaciones muy recientes
+      enableHighAccuracy: false, // Usar WiFi/IP es más rápido que GPS
+      timeout: 5000,             // Solo 5 segundos de espera
+      maximumAge: 60000          // Aceptar ubicaciones de hasta 1 minuto
     };
 
     navigator.geolocation.getCurrentPosition(
@@ -75,13 +76,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         initWeather(pos.coords.latitude, pos.coords.longitude, undefined, true);
       },
       (err) => {
-        console.warn('❌ Error GPS:', err.code, err.message);
-        let msg = "No pudimos obtener tu ubicación.";
-        if (err.code === 1) msg = "Has denegado el permiso de ubicación. Por favor, actívalo en tu navegador.";
-        if (err.code === 3) msg = "La solicitud de ubicación tardó demasiado.";
-
-        setGeoError(msg);
-        initWeather(40.4168, -3.7038, 'Madrid (Fallback)', false);
+        console.warn('⚠️ GPS no disponible, usando Madrid como ubicación inicial');
+        // No mostrar error al usuario, simplemente usar Madrid silenciosamente
+        initWeather(40.4168, -3.7038, 'Madrid (Ubicación por defecto)', false);
       },
       geoOptions
     );
