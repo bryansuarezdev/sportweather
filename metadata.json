@@ -1,0 +1,7 @@
+{
+  "name": "SportWeather",
+  "description": "A smart PWA for sports recommendations based on real-time weather data and personalized tolerance levels.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
