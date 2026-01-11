@@ -210,9 +210,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 className="w-full text-left px-6 py-4 hover:bg-slate-800 border-b border-slate-800 last:border-0 transition-colors flex items-center gap-3 group"
               >
                 <span className="text-slate-500 group-hover:text-teal-400 transition-colors text-xl">📍</span>
-                <div>
+                <div className="flex-1">
                   <div className="text-white font-bold">{res.name}</div>
-                  <div className="text-slate-500 text-xs uppercase tracking-widest">{res.lat.toFixed(2)}, {res.lon.toFixed(2)}</div>
+                  <div className="text-slate-500 text-xs uppercase tracking-widest">
+                    {res.country || 'País desconocido'}
+                  </div>
                 </div>
               </button>
             ))}
