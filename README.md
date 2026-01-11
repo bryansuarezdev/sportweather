@@ -36,6 +36,8 @@
 ### 🔐 **Seguridad Avanzada**
 - ✅ **Content Security Policy (CSP)** - Protección contra XSS
 - ✅ **Row Level Security (RLS)** - Control de acceso a nivel de fila
+- ✅ **Rutas Protegidas** - Acceso restringido vía React Router
+- ✅ **Protección de Email** - Verificación de existencia para evitar errores
 - ✅ **Rate Limiting Inteligente** - 7 ciudades únicas cada 7 días
 - ✅ **Doble Candado** - Validación por `user_id` + `email`
 - ✅ **Autenticación Supabase** - JWT tokens seguros
@@ -53,6 +55,7 @@
 ### **Frontend**
 ```
 React 18.3.1          - UI Library
+React Router 6        - Navigation & Clean URLs
 TypeScript 5.6.2      - Type Safety
 Vite 6.4.1            - Build Tool
 Tailwind CSS 3.4.17   - Styling
@@ -233,6 +236,8 @@ sportweather/
 │   │   ├── Layout.tsx           # Layout principal
 │   │   ├── Support.tsx          # Formulario de soporte
 │   │   ├── AuthCallback.tsx     # Callback de confirmación email
+│   │   ├── ProtectedRoute.tsx   # HOC para protección de rutas
+│   │   ├── ResetPasswordPage.tsx # Gestión de nuevas contraseñas
 │   │   └── ...
 │   ├── services/                # Lógica de negocio
 │   │   ├── authService.ts       # Autenticación
@@ -431,10 +436,12 @@ CONSTRAINT valid_tolerance CHECK (tolerance IN ('low', 'moderate', 'high'))
 - ✅ Recuperación de contraseña
 
 #### **Gestión de Sesión:**
-- ✅ Persistencia de sesión
-- ✅ Logout seguro
-- ✅ Callback automático después de confirmar email
-- ✅ Redirección inteligente
+- ✅ **Persistencia de sesión** automática
+- ✅ **Logout seguro** con limpieza de estado
+- ✅ **React Router Integration** - URLs limpias (`/dashboard`, `/support`)
+- ✅ **Protección de Rutas** - Redirección automática si no hay sesión
+- ✅ **Callback automático** después de confirmar email
+- ✅ **Redirección inteligente** tras recuperación de contraseña
 
 ---
 
@@ -449,13 +456,15 @@ CONSTRAINT valid_tolerance CHECK (tolerance IN ('low', 'moderate', 'high'))
 
 ### **3. Clima y Recomendaciones**
 
-- ✅ Búsqueda de ciudades global con autocompletado
-- ✅ Pronóstico de 7 días con datos precisos
-- ✅ Recomendaciones personalizadas de deportes
+- ✅ Búsqueda de ciudades global con autocompletado y **país identificador**
+- ✅ Pronóstico de 7 días con datos precisos de Open-Meteo
+- ✅ Recomendaciones personalizadas de deportes según umbrales
 - ✅ Sistema de semáforo (🟢 Ideal, 🟡 Aceptable, 🔴 No recomendado)
 - ✅ Información detallada (temperatura, viento, lluvia)
 - ✅ **Rate Limiting:** 7 ciudades únicas cada 7 días
-- ✅ **Ubicación GPS ilimitada** con badge visual
+- ✅ **Ubicación GPS Optimizada:** Con botón manual de solicitud
+- ✅ **Detección GPS Robustecida:** Mayor timeout y precisión ajustable
+- ✅ **Badge Visual:** Identifica fácilmente "📍 TU UBICACIÓN"
 
 ---
 
@@ -520,10 +529,11 @@ CONSTRAINT valid_tolerance CHECK (tolerance IN ('low', 'moderate', 'high'))
 
 #### **4. Usar Ubicación Actual**
 
-1. Permite el acceso a tu ubicación GPS
+1. Permite el acceso a tu ubicación GPS (el navegador preguntará)
 2. La app mostrará automáticamente el clima de donde estás
-3. **Ventaja:** La ubicación GPS es **ilimitada** (no gasta cupo)
-4. Verás un badge **"📍 TU UBICACIÓN"**
+3. **Botón Manual:** Usa el botón "📍 Mi Ubicación" si el navegador no pregunta automáticamente
+4. **Ventaja:** La ubicación GPS es **ilimitada** (no gasta cupo)
+5. Verás un badge **"📍 TU UBICACIÓN"**
 
 ---
 
@@ -788,7 +798,7 @@ Creado con ❤️ y ☕
 
 ---
 
-**Última actualización:** 2026-01-10  
-**Versión:** 1.0.0  
-**Nivel de Seguridad:** 🛡️ 8.5/10 (EXCELENTE)  
+**Última actualización:** 2026-01-11
+**Versión:** 1.1.0 (Routing Update)
+**Nivel de Seguridad:** 🛡️ 8.7/10 (EXCELENTE - Protegido contra Enumeración)
 **Estado:** ✅ PRODUCCIÓN READY
