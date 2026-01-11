@@ -21,4 +21,27 @@ if (!supabaseUrl || !supabaseAnonKey) {
     console.log('  Key:', supabaseAnonKey.substring(0, 20) + '...');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        // Suprimir warnings de sesión en la consola
+        debug: false
+    }
+});
+
+// Interceptar errores de red de Supabase para no llenar la consola
+const originalFetch = window.fetch;
+window.fetch = async (...args) => {
+    try {
+        const response = await originalFetch(...args);
+        // Si es un error 406 de Supabase relacionado con tokens, no lo mostramos
+        if (!response.ok && response.status === 406 && args[0].toString().includes('supabase')) {
+            console.warn('⚠️ Sesión expirada, se requiere nuevo login');
+        }
+        return response;
+    } catch (error) {
+        return originalFetch(...args);
+    }
+};

@@ -31,6 +31,24 @@ const App: React.FC = () => {
       setLoading(false);
     };
     init();
+
+    // 3. Escuchar errores de autenticación y limpiar sesiones inválidas
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('🔄 Sesión refrescada');
+      }
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+      }
+      if (event === 'SIGNED_IN' && session) {
+        const profile = await getCurrentUserProfile();
+        if (profile) setUser(profile);
+      }
+    });
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
 
   const handleOnboardingComplete = (profile: UserProfile) => {
