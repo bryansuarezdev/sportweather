@@ -209,13 +209,18 @@ const ResetPasswordPageWrapper: React.FC = () => {
   );
 };
 
-const DashboardWrapper: React.FC<{ user: UserProfile; onLogout: () => void; onDelete: () => void }> = ({ user, onLogout, onDelete }) => {
+const DashboardWrapper: React.FC<{ user: UserProfile; onLogout: () => Promise<void>; onDelete: () => void }> = ({ user, onLogout, onDelete }) => {
   const navigate = useNavigate();
+
+  const handleLogoutWithNavigate = async () => {
+    await onLogout();
+    navigate('/', { replace: true });
+  };
 
   return (
     <Layout
       user={user}
-      onLogout={onLogout}
+      onLogout={handleLogoutWithNavigate}
       onViewSupport={() => navigate('/support')}
       onViewHome={() => navigate('/dashboard')}
     >
@@ -230,13 +235,18 @@ const DashboardWrapper: React.FC<{ user: UserProfile; onLogout: () => void; onDe
   );
 };
 
-const SupportWrapper: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user, onLogout }) => {
+const SupportWrapper: React.FC<{ user: UserProfile; onLogout: () => Promise<void> }> = ({ user, onLogout }) => {
   const navigate = useNavigate();
+
+  const handleLogoutWithNavigate = async () => {
+    await onLogout();
+    navigate('/', { replace: true });
+  };
 
   return (
     <Layout
       user={user}
-      onLogout={onLogout}
+      onLogout={handleLogoutWithNavigate}
       onViewSupport={() => navigate('/support')}
       onViewHome={() => navigate('/dashboard')}
     >
