@@ -262,16 +262,16 @@ sportweather/
 │   ├── CSP_SECURITY.md          # Content Security Policy
 │   ├── CORS_CONFIGURATION.md    # Configuración CORS
 │   ├── SECURITY_SUMMARY.md      # Resumen de seguridad
-│   └── EMAIL_TEMPLATES.md       # Sugerencias de templates (antes SUPABASE_EMAIL_TEMPLATES.md)
+│   └── SUPABASE_EMAIL_TEMPLATES.md
 ├── supabase_auth_migration.sql  # Migración principal
 ├── vercel.json                  # Configuración de rutas para Vercel (OBLIGATORIO)
-├── .env.local                   # Variables de entorno (no commitear)
+├── .env.local                   # Variables de entorno
 ├── .env.example                 # Ejemplo de variables
 ├── package.json                 # Dependencias
 ├── tsconfig.json                # Config TypeScript
 ├── vite.config.ts               # Config Vite
 ├── tailwind.config.js           # Config Tailwind
-└── README.md                    # Este archivo
+└── README.md                    # Documentacion
 ```
 
 ---

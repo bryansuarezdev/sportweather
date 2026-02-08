@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Onboarding from './components/Onboarding';
@@ -11,12 +11,20 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { UserProfile } from './types';
 import { getCurrentUserProfile, deleteUserAccount } from './services/authService';
 import { supabase } from './services/supabaseClient';
+import { startPeriodicCleanup, cleanupLocalStorage } from './utils/storageCleanup';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Refs para evitar memory leaks
+  const isMounted = useRef(true);
+  const cleanupRef = useRef<(() => void) | null>(null);
+
   useEffect(() => {
+    // Marcar como montado
+    isMounted.current = true;
+
     const init = async () => {
       // 1. Manejar redirecciones de enlaces antiguos (Compatibilidad)
       // Solo redirigir si estamos en la raíz "/" para evitar bucle infinito
@@ -27,13 +35,24 @@ const App: React.FC = () => {
 
       // 2. Cargar usuario si no estamos en una redirección
       const savedUser = await getCurrentUserProfile();
-      if (savedUser) setUser(savedUser);
-      setLoading(false);
+      if (isMounted.current) {
+        if (savedUser) setUser(savedUser);
+        setLoading(false);
+      }
     };
     init();
 
-    // 3. Escuchar errores de autenticación y limpiar sesiones inválidas
+    // 3. Iniciar limpieza automática del localStorage (cada 30 minutos)
+    cleanupRef.current = startPeriodicCleanup(30 * 60 * 1000);
+
+    // 4. Ejecutar limpieza inicial
+    cleanupLocalStorage();
+
+    // 5. Escuchar errores de autenticación y limpiar sesiones inválidas
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Solo actualizar si el componente sigue montado
+      if (!isMounted.current) return;
+
       if (event === 'TOKEN_REFRESHED') {
         console.log('🔄 Sesión refrescada');
       }
@@ -42,12 +61,17 @@ const App: React.FC = () => {
       }
       if (event === 'SIGNED_IN' && session) {
         const profile = await getCurrentUserProfile();
-        if (profile) setUser(profile);
+        if (isMounted.current && profile) setUser(profile);
       }
     });
 
     return () => {
+      // Limpiar todo al desmontar
+      isMounted.current = false;
       authListener?.subscription.unsubscribe();
+      if (cleanupRef.current) {
+        cleanupRef.current();
+      }
     };
   }, []);
 

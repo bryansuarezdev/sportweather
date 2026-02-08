@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { UserProfile, WeatherData, LocationInfo, RecommendationStatus } from '../types';
 import { fetchWeather, searchLocation, reverseGeocode, getWeatherDescription } from '../services/weatherService';
 import { canAccessCity, recordCityAccess, getCityLimitInfo } from '../services/cityLimitService';
@@ -20,6 +20,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   const [limitMessage, setLimitMessage] = useState<string>('');
   const [showLimitWarning, setShowLimitWarning] = useState(false);
   const [isCurrentLocation, setIsCurrentLocation] = useState(true);
+  const [geoError, setGeoError] = useState<string | null>(null);
+
+  // Refs para evitar memory leaks
+  const isMounted = useRef(true);
+  const warningTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const userIdRef = useRef(user.id);
+  const userEmailRef = useRef(user.email);
+
+  // Mantener refs actualizadas
+  useEffect(() => {
+    userIdRef.current = user.id;
+    userEmailRef.current = user.email;
+  }, [user.id, user.email]);
 
   // Helper para parsear fechas de Open-Meteo sin errores de zona horaria
   const parseDate = (dateStr: string) => {
@@ -28,18 +41,23 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   };
 
   const initWeather = useCallback(async (lat: number, lon: number, name?: string, fromCurrentLocation: boolean = false) => {
+    if (!isMounted.current) return;
+
     setLoading(true);
     try {
       const detectedName = name || await reverseGeocode(lat, lon);
       const data = await fetchWeather(lat, lon);
+
+      if (!isMounted.current) return;
+
       setWeather(data);
       setLocation({ lat, lon, name: detectedName });
       setIsCurrentLocation(fromCurrentLocation);
 
       // Registrar acceso a la ciudad (solo si no es ubicación actual)
-      if (!fromCurrentLocation && user.id && user.email) {
+      if (!fromCurrentLocation && userIdRef.current && userEmailRef.current) {
         try {
-          await recordCityAccess(user.id, user.email, detectedName, lat, lon, fromCurrentLocation);
+          await recordCityAccess(userIdRef.current, userEmailRef.current, detectedName, lat, lon, fromCurrentLocation);
         } catch (error) {
           console.error('Error registrando acceso a ciudad:', error);
         }
@@ -47,13 +65,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
-  }, [user.id, user.email]);
-
-  const [geoError, setGeoError] = useState<string | null>(null);
+  }, []); // Sin dependencias - usa refs para valores que cambian
 
   const requestLocation = useCallback(() => {
+    if (!isMounted.current) return;
+
     setLoading(true);
     setGeoError(null);
 
@@ -72,10 +92,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (!isMounted.current) return;
         console.log('✅ Ubicación obtenida');
         initWeather(pos.coords.latitude, pos.coords.longitude, undefined, true);
       },
       (err) => {
+        if (!isMounted.current) return;
         console.warn('⚠️ GPS no disponible, usando Madrid como ubicación inicial');
         // No mostrar error al usuario, simplemente usar Madrid silenciosamente
         initWeather(40.4168, -3.7038, 'Madrid (Ubicación por defecto)', false);
@@ -84,9 +106,22 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     );
   }, [initWeather]);
 
+  // Efecto de montaje/desmontaje
   useEffect(() => {
+    isMounted.current = true;
+
     // Intentar obtener automáticamente al inicio, pero sin ser intrusivos
     requestLocation();
+
+    // Cleanup al desmontar
+    return () => {
+      isMounted.current = false;
+      // Limpiar cualquier timeout pendiente
+      if (warningTimeoutRef.current) {
+        clearTimeout(warningTimeoutRef.current);
+        warningTimeoutRef.current = null;
+      }
+    };
   }, [requestLocation]);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -118,8 +153,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         }
       );
 
-      // Ocultar warning después de 5 segundos
-      setTimeout(() => setShowLimitWarning(false), 5000);
+      // Ocultar warning después de 5 segundos (con cleanup)
+      if (warningTimeoutRef.current) {
+        clearTimeout(warningTimeoutRef.current);
+      }
+      warningTimeoutRef.current = setTimeout(() => {
+        if (isMounted.current) {
+          setShowLimitWarning(false);
+        }
+      }, 5000);
       return;
     }
 
