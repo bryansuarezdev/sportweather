@@ -1,10 +1,28 @@
 # 🌤️ SPORTWEATHER - Documentación Completa
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
 ![Security](https://img.shields.io/badge/security-8.5%2F10-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+![React](https://img.shields.io/badge/React-19.2.3-61DAFB.svg?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-3178C6.svg?logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-6.2.0-646CFF.svg?logo=vite)
 
 **SportWeather** es una aplicación web inteligente que ayuda a los deportistas a decidir qué actividad practicar según las condiciones climáticas. Con un sistema de seguridad robusto, rate limiting avanzado y una interfaz moderna, SportWeather combina tecnología de punta con una experiencia de usuario excepcional.
+
+🔗 **Demo en vivo:** [https://sportweather.vercel.app](https://sportweather.vercel.app)
+
+---
+
+## 📸 Screenshots
+
+### Registro de Usuario (Onboarding)
+![Onboarding](./screenshots/onboarding.png)
+
+### Dashboard Principal
+![Dashboard](./screenshots/dashboard.png)
+
+### Página de Soporte
+![Support](./screenshots/support.png)
 
 ---
 
@@ -43,10 +61,17 @@
 - ✅ **Autenticación Supabase** - JWT tokens seguros
 
 ### 🚀 **Rendimiento**
-- ✅ **Vite** - Build ultrarrápido
-- ✅ **React 18** - Concurrent rendering
+- ✅ **Vite** - Build ultrarrápido con HMR
+- ✅ **React 19** - Concurrent rendering mejorado
 - ✅ **Índices optimizados** en PostgreSQL
 - ✅ **Caché inteligente** de búsquedas
+- ✅ **Limpieza automática de localStorage** - Previene memory leaks (nuevo v1.1)
+
+### 🧹 **Sistema de Limpieza Automática (v1.1)**
+- ✅ **Limpieza periódica** cada 30 minutos
+- ✅ **Protección de sesión** - Las claves de Supabase nunca se eliminan
+- ✅ **Prevención de memory leaks** - Refs para controlar componentes montados
+- ✅ **Cleanup de timeouts** - Todos los timers se cancelan al desmontar
 
 ---
 
@@ -54,11 +79,11 @@
 
 ### **Frontend**
 ```
-React 18.3.1          - UI Library
-React Router 6        - Navigation & Clean URLs
-TypeScript 5.6.2      - Type Safety
-Vite 6.4.1            - Build Tool
-Tailwind CSS 3.4.17   - Styling
+React 19.2.3          - UI Library (Concurrent Rendering)
+React Router 7.12.0   - Navigation & Clean URLs
+TypeScript 5.8.2      - Type Safety
+Vite 6.2.0            - Build Tool (HMR ultrarrápido)
+Tailwind CSS 4.1.18   - Styling (JIT Compiler)
 ```
 
 ### **Backend**
@@ -98,7 +123,7 @@ Rate Limiting (ciudades + emails)
 
 ```bash
 # 1. Clonar el repositorio
-git clone <tu-repositorio>
+git clone <https://github.com/bryansuarezdev/sportweather>
 cd sportweather
 
 # 2. Instalar dependencias
@@ -248,7 +273,8 @@ sportweather/
 │   │   ├── supabase.ts          # Cliente Supabase
 │   │   └── supabaseClient.ts    # Configuración Supabase
 │   ├── utils/                   # Utilidades
-│   │   └── recommendation.ts    # Lógica de recomendaciones
+│   │   ├── recommendation.ts    # Lógica de recomendaciones
+│   │   └── storageCleanup.ts    # Limpieza automática de localStorage (v1.1)
 │   ├── types.ts                 # Tipos TypeScript
 │   ├── constants.ts             # Constantes (deportes, etc.)
 │   ├── App.tsx                  # Componente raíz
@@ -262,7 +288,7 @@ sportweather/
 │   ├── CSP_SECURITY.md          # Content Security Policy
 │   ├── CORS_CONFIGURATION.md    # Configuración CORS
 │   ├── SECURITY_SUMMARY.md      # Resumen de seguridad
-│   └── SUPABASE_EMAIL_TEMPLATES.md
+│   └── SUPABASE_EMAIL_TEMPLATES.md # Templates de emails de autenticación
 ├── supabase_auth_migration.sql  # Migración principal
 ├── vercel.json                  # Configuración de rutas para Vercel (OBLIGATORIO)
 ├── .env.local                   # Variables de entorno
@@ -415,6 +441,42 @@ CONSTRAINT valid_tolerance CHECK (tolerance IN ('low', 'moderate', 'high'))
 **Resultado:** 8/10 vulnerabilidades cubiertas ✅
 
 📚 **Documentación completa:** `docs/SECURITY_SUMMARY.md`
+
+---
+
+#### **7. Sistema de Limpieza Automática de LocalStorage (v1.1)**
+**Protege contra:** Memory leaks, Datos obsoletos, Cuelgues de aplicación
+
+**Problema resuelto:**
+La aplicación podía "colgarse" después de estar abierta por mucho tiempo debido a:
+- Datos acumulados en localStorage
+- Timeouts sin limpiar
+- Callbacks ejecutándose en componentes desmontados
+
+**Solución implementada:**
+
+```typescript
+// utils/storageCleanup.ts
+import { startPeriodicCleanup, cleanupLocalStorage } from './utils/storageCleanup';
+
+// Inicia limpieza cada 30 minutos
+const stopCleanup = startPeriodicCleanup(30 * 60 * 1000);
+
+// Limpieza manual cuando sea necesario
+cleanupLocalStorage();
+```
+
+**Características:**
+- ✅ **Limpieza periódica** - Cada 30 minutos automáticamente
+- ✅ **Claves protegidas** - Las sesiones de Supabase (`sb-*`) nunca se eliminan
+- ✅ **Prefijos limpiables** - `weather_cache_`, `city_search_`, `temp_`
+- ✅ **Verificación de montaje** - `isMounted.current` antes de actualizar estado
+- ✅ **Cleanup de refs** - Timeouts guardados en refs y cancelados al desmontar
+
+**Archivos modificados:**
+- `App.tsx` - Integración del sistema de limpieza
+- `components/Dashboard.tsx` - Prevención de memory leaks
+- `utils/storageCleanup.ts` - Módulo de limpieza (nuevo)
 
 ---
 
