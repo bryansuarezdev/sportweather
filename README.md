@@ -835,7 +835,6 @@ Este proyecto está bajo la Licencia MIT.
 <p align="left">
   <strong>Bryan Suárez</strong><br>
   <em>Full-Stack Developer & Digital Operations Specialist</em><br>
-  Coquimbo, Chile
 </p>
 
 <p align="left">
