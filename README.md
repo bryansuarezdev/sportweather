@@ -1,15 +1,27 @@
 # 🌤️ SPORTWEATHER - Documentación Completa
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
-![Security](https://img.shields.io/badge/security-8.5%2F10-green.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![React](https://img.shields.io/badge/React-19.2.3-61DAFB.svg?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-3178C6.svg?logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-6.2.0-646CFF.svg?logo=vite)
+**Aplicación web inteligente que ayuda a los deportistas a decidir qué actividad practicar según las condiciones climáticas.**  
+Cuenta con un sistema de seguridad robusto, rate limiting avanzado, autenticación con Supabase y una interfaz moderna y reactiva.
 
-**SportWeather** es una aplicación web inteligente que ayuda a los deportistas a decidir qué actividad practicar según las condiciones climáticas. Con un sistema de seguridad robusto, rate limiting avanzado y una interfaz moderna, SportWeather combina tecnología de punta con una experiencia de usuario excepcional.
+<p align="left">
+  <a href="https://sportweather.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/Demo_en_Vivo-008080?style=for-the-badge&logo=vercel&logoColor=white" alt="Demo en Vivo" />
+  </a>
+  <a href="https://github.com/bryansuarezdev/sportweather" target="_blank">
+    <img src="https://img.shields.io/badge/Repositorio-181717?style=for-the-badge&logo=github&logoColor=white" alt="Repositorio" />
+  </a>
+</p>
 
-🔗 **Demo en vivo:** [https://sportweather.vercel.app](https://sportweather.vercel.app)
+<p align="left">
+  <img src="https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 19" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+</p>
+
+🔗 **Demo en vivo:** [https://sportweather.vercel.app](https://sportweather.vercel.app)  
+📁 **Repositorio:** [https://github.com/bryansuarezdev/sportweather](https://github.com/bryansuarezdev/sportweather)
 
 ---
 
@@ -818,10 +830,31 @@ Este proyecto está bajo la Licencia MIT.
 
 ---
 
-## 👥 Autor
+## 👨‍💻 Autor
 
-**SportWeather Team**  
-Creado con ❤️ y ☕
+<p align="left">
+  <strong>Bryan Suárez</strong><br>
+  <em>Full-Stack Developer & Digital Operations Specialist</em><br>
+  Coquimbo, Chile
+</p>
+
+<p align="left">
+  <a href="https://www.linkedin.com/in/bryansuarez1989/" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+  </a>
+  <a href="https://github.com/bryansuarezdev" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+  </a>
+  <a href="mailto:bryan.end.dev@gmail.com">
+    <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+  </a>
+</p>
+
+---
+
+<p align="center">
+  <sub>Construido con foco en código limpio, interfaces modernas y atención al detalle.</sub>
+</p>
 
 ---
 
